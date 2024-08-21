@@ -1,0 +1,47 @@
+{
+	"info": {
+		"_postman_id": "0f34f2e1-6a37-4f49-939c-a70839e7fc4d",
+		"name": "GetWeatherExample",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37534444"
+	},
+	"item": [
+		{
+			"name": "GetWeather",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n     \"latitude\" : 38.8894,\r\n     \"longitude\" : -77.0352\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8080/currentweather",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"currentweather"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
