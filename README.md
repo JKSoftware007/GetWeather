@@ -1,6 +1,6 @@
 # GetWeather
 
-This small example program will allow the user to submit coordinates to get the weather for.
+This small example program will allow the user to submit coordinates to get the weather for the given location.
 
 <h1>Install</h1>
 
