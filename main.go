@@ -31,9 +31,8 @@ func main() {
 	}()
 
 	router := mux.NewRouter()
-	router.Handle("/currentweather", rateLimiter(currentWeatherHandler)).Methods("POST").Schemes("http")
+	router.HandleFunc("/currentweather", currentWeatherHandler).Methods("POST").Schemes("http")
 
-	http.Handle("/path", rateLimiter(currentWeatherHandler))
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatalln("There's an error with the server,", err.Error())
@@ -176,22 +175,4 @@ type Period struct {
 type PrecipitationProbability struct {
 	UnitCode string `json:"unitCode"`
 	Value    int    `json:"value"`
-}
-
-func rateLimiter(next func(w http.ResponseWriter, r *http.Request)) http.Handler {
-	limiter := rate.NewLimiter(2, 4)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !limiter.Allow() {
-			message := Message{
-				Status: "Request Failed",
-				Body:   "The API is at capacity, try again later.",
-			}
-
-			w.WriteHeader(http.StatusTooManyRequests)
-			json.NewEncoder(w).Encode(&message)
-			return
-		} else {
-			next(w, r)
-		}
-	})
 }
