@@ -1,4 +1,4 @@
-﻿package main
+package main
 
 import (
 	"encoding/json"
@@ -31,8 +31,9 @@ func main() {
 	}()
 
 	router := mux.NewRouter()
-	router.HandleFunc("/currentweather", currentWeatherHandler).Methods("POST").Schemes("http")
+	router.Handle("/currentweather", rateLimiter(currentWeatherHandler)).Methods("POST").Schemes("http")
 
+	http.Handle("/path", rateLimiter(currentWeatherHandler))
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatalln("There's an error with the server,", err.Error())
@@ -127,7 +128,9 @@ func getLocationDetails(location Coordinates) (LocationDetails, error) {
 	return locationDetails, nil
 }
 
-// In Golang, the property must be capitalized to be public.  Since the JSON properties are lower case, we tell
+// In Golang, the property must be capitalized to be public to other packages.
+// While not actually being used in other packages, done here to show an aspect of the language and
+//JSON property handling.  Since the JSON properties are lower case, we tell
 // the JSON parser the field in the data will be lowercase.
 
 // Coordinates are the input from the user we get the forecast for
@@ -173,4 +176,22 @@ type Period struct {
 type PrecipitationProbability struct {
 	UnitCode string `json:"unitCode"`
 	Value    int    `json:"value"`
+}
+
+func rateLimiter(next func(w http.ResponseWriter, r *http.Request)) http.Handler {
+	limiter := rate.NewLimiter(2, 4)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.Allow() {
+			message := Message{
+				Status: "Request Failed",
+				Body:   "The API is at capacity, try again later.",
+			}
+
+			w.WriteHeader(http.StatusTooManyRequests)
+			json.NewEncoder(w).Encode(&message)
+			return
+		} else {
+			next(w, r)
+		}
+	})
 }
