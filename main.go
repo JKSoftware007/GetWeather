@@ -66,7 +66,7 @@ func currentWeatherHandler(writer http.ResponseWriter, request *http.Request) {
 	// Get the short forecast for today/tonight
 	period := forecast.Properties.Periods[0]
 
-	CharacterizeTemp(&period)
+	period.Characterization = CharacterizeTemp(period.Temperature)
 
 	if err := json.NewEncoder(writer).Encode(&period); err != nil {
 		log.Default().Println(`Unable encode the response: `, err.Error())
@@ -76,15 +76,15 @@ func currentWeatherHandler(writer http.ResponseWriter, request *http.Request) {
 }
 
 // CharacterizeTemp will add a descriptive label to the temperature: hot, cold, or moderate
-func CharacterizeTemp(period *Period) {
+func CharacterizeTemp(temp int) string {
 	// Ideally code would check unit and use values correctly based on that.  This assumes Fahrenheit
 	switch {
-	case period.Temperature > 85:
-		period.Characterization = "hot"
-	case period.Temperature < 45:
-		period.Characterization = "cold"
+	case temp > 85:
+		return "hot"
+	case temp < 45:
+		return "cold"
 	default:
-		period.Characterization = "moderate"
+		return "moderate"
 	}
 }
 
